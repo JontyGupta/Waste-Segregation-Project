@@ -15,3 +15,6 @@ pip install -e ".[hardware,dev]"
 
 # To creating mapping
 python scripts/prepare_dataset.py --zip data/downloads/Yolo_Dataset1.zip --auto-map --min-score 0.4 --prefix "ds1_" --fresh
+
+# Script to split dataset
+python split_val.py

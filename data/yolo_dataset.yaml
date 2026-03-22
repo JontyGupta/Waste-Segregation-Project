@@ -3,7 +3,7 @@
 
 path: ./data
 train: images/train
-val: image/val
+val: images/val
 test: images/test
 
 # Class names - update to match your annotation labels
@@ -47,7 +47,7 @@ names:
   # E-Waste
   32: battery
   33: circuit_board
-  34: cabel
+  34: cable
   35: charger
   36: phone
   37: keyboard
@@ -65,7 +65,7 @@ names:
   48: solvent
   49: fertilizer_bag
   # Textile Waste
-  50: clothers
+  50: clothes
   51: fabric
   52: shoes
   53: leather
@@ -73,7 +73,7 @@ names:
   55: towel
   56: curtain
   57: bag_cloth
-  # Sanitary Waste
+  # Construction Waste
   58: brick 
   59: concrete
   60: tile
@@ -82,9 +82,9 @@ names:
   63: pipe
   64: wire
   65: plywood
-  # Sanitory Waste
+  # Sanitary Waste
   66: diaper
-  67: sanitory_pad
+  67: sanitary_pad
   68: tissue
   69: wet_wipe
   70: cotton_ball

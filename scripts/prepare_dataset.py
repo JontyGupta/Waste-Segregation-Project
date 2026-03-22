@@ -136,7 +136,7 @@ def _normalize(name: str) -> str:
 
 
 def _similarity(a: str, b: str) -> float:
-    """Compute similarity score between two class names (8.0 to 1.8)."""
+    """Compute similarity score between two class names (0.0 to 1.0)."""
     na, nb = _normalize(a), _normalize(b)
 
     # Exact match
@@ -215,7 +215,7 @@ def auto_generate_mapping(
         if best_score >= min_score:
             mapping[src_id] = best_target_id
             status = "EXACT" if best_score == 1.0 else f"score={best_score:.2f}"
-            print(" MATCHED: {src_id}: {src_name:<25} -> {best_target_id}: {best_target_name:<25} ({status})")
+            print(f" MATCHED: {src_id}: {src_name:<25} -> {best_target_id}: {best_target_name:<25} ({status})")
         else:
             unmatched.append((src_id, src_name))
             print(f" SKIPPED: {src_id}: {src_name:<25} -> (best was {best_target_name}, score={best_score:.2f})")
@@ -225,7 +225,7 @@ def auto_generate_mapping(
     if unmatched:
         print("\nskipped classes (no good match found):")
         for sid, sname in unmatched:
-            print(" {sid}: {sname}")
+            print(f" {sid}: {sname}")
         
     #Save mapping to file if requested
     if save_path and mapping:
@@ -233,7 +233,7 @@ def auto_generate_mapping(
         with open(save_path, 'w') as f: 
             f.write("# Auto-generated class mapping\n") 
             f.write(f"# Source: {zip_path}\n") 
-            f.write(f"a Target: {target_yaml}\n\n") 
+            f.write(f"# Target: {target_yaml}\n\n") 
             for src_id in sorted(mapping): 
                 tgt_id = mapping[src_id] 
                 src_n = src_names.get(src_id, '?') 
@@ -392,7 +392,10 @@ def prepare(
     
     # Step 4: Remap and copy
     if not keep_existing:
-        for split in ["train", "val"]:
+        splits_to_clear = list(folders.keys())
+        if "all" in splits_to_clear:
+            splits_to_clear = ["train", "val"]
+        for split in splits_to_clear:
             for sub in ["images", "labels"]:
                 d = output / sub / split
                 if d.exists():
@@ -425,9 +428,9 @@ def prepare(
         img_dir = output/ "images" / split
         if img_dir.exists():
             count = len([f for f in img_dir.iterdir() if f.suffix.lower() in IMG_EXTENSIONS])
-            print("Final data/{split}: {count} images")
+            print(f"Final data/{split}: {count} images")
     
-    print("\nDone! Ready to train with: python main.py--train-yolo")
+    print("\nDone! Ready to train with: python main.py --train-yolo")
    
 
 def prepare_with_mapping(
@@ -458,11 +461,15 @@ def prepare_with_mapping(
     print(f"Detected splits: {list(folders.keys())}")
         
     if not keep_existing:
-        for split in ["train", "val"]:
+        splits_to_clear = list(folders.keys())
+        if "all" in splits_to_clear:
+            splits_to_clear = ["train", "val"]
+        for split in splits_to_clear:
             for sub in ["images", "labels"]:
                 d = output / sub / split
-                if d.exists(): 
+                if d.exists():
                     shutil.rmtree(d)
+
         
     if "all" in folders:
         temp_imgs = temp_dir /"_remapped" / "images"

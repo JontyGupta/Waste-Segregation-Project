@@ -1,3 +1,10 @@
 venv/
 waste_classifier.egg-info/
 __pycache__/
+outputs/
+
+data/images/
+data/labels/
+data/downloads/
+
+runs/

@@ -13,7 +13,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-class YOLOv8Dectector:
+class YOLOv8Detector:
     """
     YOLOv8-based waste object detector.
 

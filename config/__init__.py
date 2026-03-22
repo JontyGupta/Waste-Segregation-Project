@@ -67,7 +67,7 @@ def _resolve_paths(config: Dict[str, Any]) -> None:
 def _resolve_nested_paths(config: Dict[str, Any], keys: tuple) -> None:
     """Resolve a single nested path key to an absolute path."""
     d = config
-    for key in keys["-1"]:
+    for key in keys[-1]:
         if key not in d:
             return
         d = d[key]

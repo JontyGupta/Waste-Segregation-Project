@@ -9,13 +9,13 @@ from typing import Any, Dict, List, Optional
 import cv2
 import numpy as np
 
-from YoloV8.model import YOLOv8Dectector
+from YoloV8.model import YOLOv8Detector
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-class Yolov8Predictor:
+class YOLOv8Predictor:
     """
     High-level prediction wrapper for YOLOv8 waste detection.
 
@@ -25,7 +25,7 @@ class Yolov8Predictor:
         - Extracting cropped detection for downstream CNN
     """
 
-    def __init__(self, detector: YOLOv8Dectector) -> None:
+    def __init__(self, detector: YOLOv8Detector) -> None:
         """
         Initialize YOLOv8Predictor
 

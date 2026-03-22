@@ -100,7 +100,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
     from classifier.ensemble import WasteEnsembbleClassifier
 
     logger.info("=" * 60)
-    logger.info("Processing: %s", iamge_path)
+    logger.info("Processing: %s", image_path)
     logger.info("=" * 60)
 
     # 1. Load image
@@ -128,20 +128,20 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
         logger.info("  -> %s (%.2f%%)", det["label"], det["confidence"] * 100)
 
     # 3. CNN classification on cropperd detections
-    cnn_config = config["cnn"]
+    cnn_cfg = config["cnn"]
     cnn_device = get_device(cnn_cfg["device"])
 
-    cnn_prediction = CNNPredictor(
+    cnn_predictor = CNNPredictor(
         weights_path=cnn_cfg["weights_path"],
         architecture=cnn_cfg["architecture"],
         num_classes=cnn_cfg["num_classes"],
         device=cnn_device,
     )
 
-    cnn_prediction = []
+    cnn_predictions = []
     for crop_info in cropped:
         prediction = cnn_predictor.predict(crop_info["crop"])
-        cnn_predicitons.append(prediciton)
+        cnn_predictions.append(prediction)
         logger.info(
             "  CNN -> %s (%.2f%%) for YOLO label '%s'",
             prediction["category"], prediction["confidence"] * 100,
@@ -159,7 +159,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
         adaptive_config=ens_cfg["adaptive_config"],
     )
 
-    result = ensemble.classify(yolo_detections, cnn_prediction)
+    result = ensemble.classify(yolo_detections, cnn_predictions)
 
     # Display result
     print("\n" + WasteEnsembbleClassifier.format_result(result) + "\n")
@@ -181,11 +181,11 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
             final_confidence=result["confidence"],
             strategy=result.get("strategy", ""),
             yolo_detections=serializable_dets,
-            cnn_prediction=cnn_prediction,
+            cnn_prediction=cnn_predictions,
             all_probabilities=result.get("all_probabilities", {}),
             source=source,
         )
-        db.storage.insert_record(record)
+        db_storage.insert_record(record)
         logger.info("Result saved to database (ID: %s)", record.record_id)
 
     # 6. Route to hardware bin (if hardware enabled)
@@ -206,10 +206,10 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
 
         if save:
             out_dir = Path(config["output"]["results_dir"])
-            out_dir.mkdir(parents=True, exists_ok=True)
+            out_dir.mkdir(parents=True, exist_ok=True)
             out_path = out_dir / f"result_{Path(image_path).stem}.jpg"
             import cv2
-            cv2.inwrite(str(out_path), annotated)
+            cv2.imwrite(str(out_path), annotated)
             logger.info("Annotated image saved to %s", out_path)
 
         if show:
@@ -218,7 +218,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
     return result
 
 
-def run_camera_inference(config: dict, loger, save: bool = False, show: bool = False, db_storage=None, hw_controller=None):
+def run_camera_inference(config: dict, logger, save: bool = False, show: bool = False, db_storage=None, hw_controller=None):
     """Capture an image from webcam and classify it."""
     cap_cfg = config["camera_index"],
     camera = Camera(
@@ -239,7 +239,7 @@ def run_directory_inference(dir_path: str, config: dict, logger, save: bool = Fa
     """Run inference on all images in a directory"""
     dir_path = Path(dir_path)
     extension = {".jpg", ".jpeg", ".png", ".bmp"}
-    image = [f for f in sorted(dir_path.iterdir()) if f.suffix.lower() in extension]
+    images = [f for f in sorted(dir_path.iterdir()) if f.suffix.lower() in extension]
 
     logger.info("Found %d images in '%s", len(images), dir_path)
 
@@ -349,7 +349,7 @@ def show_db_stats(config: dict, logger):
     print(f"  Total records       : {stats['total_records']}")
     print(f"  Avg confidence      : {stats['average_confidence']:.1%}")
     print(f"  Date range          : {stats['data_range'].get('earliest', 'N/A')}")
-    print(f"                      : {stats['data_range'],get('latest', 'N/A')}")
+    print(f"                      : {stats['data_range'].get('latest', 'N/A')}")
     print()
     print("    Category Breakdown:")
     for cat, cnt in stats.get("category_counts", {}).items():
@@ -480,7 +480,7 @@ def main():
     config = load_config(args.config)
 
     # Setup logger
-    log_config = config["logging"]
+    log_cfg = config["logging"]
     logger = get_logger(
         "WasteClassifier",
         log_file=log_cfg["log_file"],
@@ -494,14 +494,14 @@ def main():
     # Initialize database storage (if enabled)
     db_storage = None
     db_cfg = config.get("database", {})
-    track_results = db_cfg.get("track_result", True)
+    track_results = db_cfg.get("track_results", True)
 
     if track_results and not getattr(args, "no_db", False):
         db_storage = get_db_storage(config, logger)
 
     # Initialize hardware controller (if requested)
     hw_controller = None
-    if getattr(args, "hardware", False) or getattr(Args, "Simulate_hw", False):
+    if getattr(args, "hardware", False) or getattr(args, "Simulate_hw", False):
         hw_controller = get_hw_controller(config, logger, simulate=getattr(args, "simulate_hw", False), port_override=getattr(args, "port", None))
 
     try:
