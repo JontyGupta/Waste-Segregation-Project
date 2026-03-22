@@ -1,0 +1,220 @@
+# =========================================================
+# Waste Classifier - Configuration
+# =========================================================
+
+# --------- Waste Categories ---------
+categories:
+  waste_types:
+    -  "biodegradable"
+    -  "non_biodegradable_recyclable"
+    -  "non_biodegradable_non_recyclable"
+    -  "medical_waste"
+    -  "e_waste"
+    -  "hazardous_waste"
+    -  "textile_waste"
+    -  "construction_waste"
+    -  "sanitary_waste"
+    -  "other"
+
+  # Mapping: YOLO detected object -> waste category
+  object_category_map:
+    # Biodegradable
+    "banana_peel": "biodegradable"
+    "orange_peel": "biodegradable"
+    "apple_core": "biodegradable"
+    "food_waste": "biodegradable"
+    "vegetable_scraps": "biodegradable"
+    "paper": "biodegradable"
+    "cardboard": "biodegradable"
+    "tea_bag": "biodegradable"
+    "egg_shell": "biodegradable"
+    "wood": "biodegradable"
+    "leaves": "biodegradable"
+
+    # Non-Biodegradable - Recyclable
+    "plastic_bottle": "non_biodegradable_recyclable"
+    "glass_bottle": "non_biodegradable_recyclable"
+    "metal_can": "non_biodegradable_recyclable"
+    "aluminium_can": "non_biodegradable_recyclable"
+    "newspaper": "non_biodegradable_recyclable"
+    "cardboard_box": "non_biodegradable_recyclable"
+    "tin_can": "non_biodegradable_recyclable"
+    "steel": "non_biodegradable_recyclable"
+
+    # Non-Biodegradable Non-Recyclable
+    "styrofoam": "non_biodegradable_non_recyclable"
+    "plastic_bag": "non_biodegradable_non_recyclable"
+    "chip_packet": "non_biodegradable_non_recyclable"
+    "ceramic": "non_biodegradable_non_recyclable"
+    "rubber": "non_biodegradable_non_recyclable"
+
+    # Medical Waste
+    "syringe": "medical_waste"
+    "bandage": "medical_waste"
+    "gloves": "medical_waste"
+    "mask": "medical_waste"
+    "medicine_bottle": "medical_waste"
+    "cotton_swab": "medical_waste"
+    "iv_bag": "medical_waste"
+    "scalpel": "medical_waste"
+
+    # E-Waste (Electronic Waste)
+    "battery": "e_waste"
+    "circuit_board": "e_waste"
+    "cable": "e_waste"
+    "charger": "e_waste"
+    "phone": "e_waste"
+    "keyboard": "e_waste"
+    "mouse": "e_waste"
+    "headphones": "e_waste"
+    "usb_drive": "e_waste"
+    "light_bulb": "e_waste"
+
+    # Hazardous Waste
+    "paint_can": "hazardous_waste"
+    "pesticide_bottle": "hazardous_waste"
+    "aerosol_can": "hazardous_waste"
+    "motor_oil": "hazardous_waste"
+    "chemical_bottle": "hazardous_waste"
+    "bleach_bottle": "hazardous_waste"
+    "solvent": "hazardous_waste"
+    "fertilizer_bag": "hazardous_waste"
+
+    # Textile Waste
+    "clothes": "textile_waste"
+    "fabric": "textile_waste"
+    "shoes": "textile_waste"
+    "leather": "textile_waste"
+    "carpet": "textile_waste"
+    "towel": "textile_waste"
+    "curtain": "textile_waste"
+    "bag_cloth": "textile_waste"
+
+    # Construction / Demolition Waste
+    "brick": "construction_waste"
+    "concrete": "construction_waste"
+    "tile": "construction_waste"
+    "plaster": "construction_waste"
+    "insulation": "construction_waste"
+    "pipe": "construction_waste"
+    "wire": "construction_waste"
+    "plywood": "construction_waste"
+
+    # Sanitary Waste
+    "diaper": "sanitary_waste"
+    "sanitary_pad": "sanitary_waste"
+    "tissue": "sanitary_waste"
+    "wet_wipe": "sanitary_waste"
+    "cotton_ball": "sanitary_waste"
+    "razor": "sanitary_waste"
+
+# ------------- Image Capture -------------
+  capture:
+    camera_index: 0
+    frame_width: 640
+    frame_height: 480
+    save_dir: "data/captured"
+
+# ------------- Image Processing -------------
+image_processing:
+  target_size: [640, 640] # For YOLOV8
+  cnn_input_size: [224, 224] # For CNN
+  normalize: true
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+
+# ------------- YOLOV8 Model -------------
+yolov8: #nano variant (use yolov8s/m/1/x for better accuracy)
+  model_variant: "yolov8n.pt"
+  pretrained_weights: "models/yolov8/train/weights/best.pt"
+  confidence_threshold: 0.5
+  iou_threshold: 0.45
+  device: "auto" #"auto", "cpu", "cuda:e"
+  training:
+    data_yaml: "data/yolo_dataset.yaml"
+    epochs: 100
+    batch_size: 16
+    img_size: 640
+    patience: 20
+    save_dirs: "models/yolov8"
+    augment: true
+
+# ------------- CNN Model -------------
+cnn:
+  architecture: "resnet50" #resnet50, resnet18, efficientnet_bo
+  num_classes: 10
+  pretrained: true
+  weights_path: "models/cnn/best_cnn.pth"
+  dropout: 0.3
+  device: "auto"
+  training:
+    epochs: 50
+    batch_size: 32
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    scheduler_step: 10
+    scheduler_gamma: 0.1
+    patience: 15
+    save_dir: "models/cnn"
+    train_split: 0.8
+    val_split: 0.1
+    test_split: 0.1
+
+# ------------- Ensemble / Final Classifier -------------
+ensemble:
+  strategy: "confidence_adaptive" # "confidence_adaptive", "weighted_average", "majority_vote", "yolo_priority"
+  yolo weight: 0.55
+  cnn_weight: 0.45
+  min_confidence: 0.3 #Minimum confidence to accept a prediction
+  
+  #Confidence-adaptive thresholds (used when strategy = confidence_adaptive)
+  adaptive:
+    high_conf_threshold: 0.85 # YOLO conf above this -> trust YOLO heavily
+    high_yolo_weight: 0.70
+    high_cnn_weight: 0.30
+    medium_yolo_weight: 0.55 # Used when YOLO conf is between min and high
+    medium_cnn_weight: 0.45
+    low_yolo_weight: 0.30 # YOLO conf below min_confidence -> lean on CNN
+    low_cnn_weight: 0.70
+
+# ------------- Logging -------------
+logging:
+  level: "INFO"
+  log_file: "outputs/logs/waste_classifier.log"
+  console: true
+
+# ------------- Output -------------
+output:
+  results_dir: "outputs/results"
+  save_annotated_images: true
+  save_predictions_csv: true
+
+# ------------- Database -------------
+database:
+  backend: "mongodb" # "mongodb" (primary) or "sqlite" (fallback)
+  track_results: true #Auto-save every classification to DB
+
+  mongodb:
+    connection_uri: "mongodb://localhost:27017"
+    database_name: "waste_classifier"
+    collection_name: "waste_records"
+
+  sqlite:
+    db_path: "data/waste_classifier.db"
+
+# ------------- PowerBI Export -------------
+export: 
+  output_dir: "outputs/exports"
+  formats:           # Formats to generate on --export
+    - "csv"
+    - "excel"
+    - "json"
+
+# ------------- Hardware (Arduino) -------------
+# INDEPENDENT from classification - enable with --hardware or --simulate-hw
+hardware:
+  enabled: false    # Set true to auto-enable (or use  --hardware flag)
+  port: "COM3"      # Serial port (Windows: COM3, Linux: /dev/ttyUSB0)
+  baud_rate: 9600
+  timeout: 2.0      # Serial read timeout (seconds)
+  sim_delay_factor: 0.1  # Simulator speed (0.1 10x faster than real)
