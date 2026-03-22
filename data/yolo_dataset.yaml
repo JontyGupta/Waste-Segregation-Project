@@ -1,0 +1,92 @@
+# YOLO-format dataset configuration
+# Update paths to your actual dataset location.
+
+path: ./data
+train: images/train
+val: image/val
+test: images/test
+
+# Class names - update to match your annotation labels
+names:
+  # Biodegradable
+  0: banana_peel
+  1: orange_peel
+  2: apple_core
+  3: food_waste
+  4: vegetable_scraps
+  5: paper
+  6: cardboard
+  7: tea_bag
+  8: egg_shell
+  9: wood
+  10: leaves
+  # Non-Biodegradable - Recyclable
+  11: plastic_bottle
+  12: glass_bottle
+  13: metal_can
+  14: aluminium_can
+  15: newspaper
+  16: cardboard_box
+  17: tin_can
+  18: steel
+  # Non-Biodegradable - Non-Recyclable
+  19: styrofoam
+  20: plastic_bag
+  21: chip_packet
+  22: ceramic
+  23: rubber
+  # Medical Waste
+  24: syringe
+  25: bandage
+  26: gloves
+  27: mask
+  28: medicine_bottle
+  29: cotton_swab
+  30: iv_bag
+  31: scalpel
+  # E-Waste
+  32: battery
+  33: circuit_board
+  34: cabel
+  35: charger
+  36: phone
+  37: keyboard
+  38: mouse
+  39: headphones
+  40: usb_drive
+  41: light_bulb
+  # Hazardous Waste
+  42: paint_can
+  43: pesticide_bottle
+  44: aerosol_can
+  45: motor_oil
+  46: chemical_bottle
+  47: bleach_bottle
+  48: solvent
+  49: fertilizer_bag
+  # Textile Waste
+  50: clothers
+  51: fabric
+  52: shoes
+  53: leather
+  54: carpet
+  55: towel
+  56: curtain
+  57: bag_cloth
+  # Sanitary Waste
+  58: brick 
+  59: concrete
+  60: tile
+  61: plaster
+  62: insulation
+  63: pipe
+  64: wire
+  65: plywood
+  # Sanitory Waste
+  66: diaper
+  67: sanitory_pad
+  68: tissue
+  69: wet_wipe
+  70: cotton_ball
+  71: razor
+ 
