@@ -42,7 +42,7 @@ class SQLiteBackend(StorageBackend):
     CREATE_INDEX_SQL = [
         "CREATE INDEX IF NOT EXISTS idx_category ON waste_records(final_category);", 
         "CREATE INDEX IF NOT EXISTS idx_timestamp ON waste_records (timestamp);",
-        "CREATE INDEX IF NOT EXISTS idx source ON waste_records (source);",
+        "CREATE INDEX IF NOT EXISTS idx_source ON waste_records (source);",
     ]
         
     def __init__(self, db_path: str = "data/waste_classifier.db") -> None:
@@ -167,7 +167,7 @@ class SQLiteBackend(StorageBackend):
         """Retrieve all records with optional pagination."""
         self._ensure_connected()
 
-        query = "SELECT FROM waste_records ORDER BY timestamp DESC"
+        query = "SELECT * FROM waste_records ORDER BY timestamp DESC"
         params: list = []
 
         if limit is not None:
@@ -182,7 +182,7 @@ class SQLiteBackend(StorageBackend):
         self._ensure_connected()
 
         rows = self._conn.execute(
-            "SELECT FROM waste_records WHERE final_category = ? ORDER BY timestamp DESC", 
+            "SELECT * FROM waste_records WHERE final_category = ? ORDER BY timestamp DESC", 
             (category,),
         ).fetchall()
         return [self._row_to_record(row) for row in rows]
@@ -195,10 +195,10 @@ class SQLiteBackend(StorageBackend):
 
         rows = self._conn.execute(
             """
-            SELECT FROM waste_records 
+            SELECT * FROM waste_records 
             WHERE timestamp >= ? AND timestamp <= ?
             ORDER BY timestamp DESC
-            """
+            """,
             (start_date, end_date),
         ).fetchall()
         return [self._row_to_record(row) for row in rows]

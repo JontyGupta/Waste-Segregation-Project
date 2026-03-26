@@ -30,12 +30,12 @@ class YOLOv8Trainer:
     def __init__(
         self,
         model_variant: str = "yolov8n.pt",
-        data_yaml: str = "Data/yolo_dataset.yaml",
-        epochs: int = 100,
+        data_yaml: str = "data/YOLO_Dataset/data.yaml",
+        epochs: int = 50,
         batch_size: int = 16,
         img_size: int = 640,
         patience: int = 20,
-        save_dir: str = "model/yolov8",
+        save_dir: str = "models/yolov8",
         device: str = "auto",
         augment: bool = True,
     ) -> None:
@@ -108,7 +108,7 @@ class YOLOv8Trainer:
             name="train",
             exist_ok=True,
             augment=self.augment,
-            device=self.device if self.device != "auto" else None,
+            device=0 if self.device != "auto" else None,
             verbose=True,
         )
 
@@ -122,7 +122,7 @@ class YOLOv8Trainer:
 
         return {
             "result": results,
-            "best_Weights": str(best_weights) if best_weights else None,
+            "best_weights": str(best_weights) if best_weights else None,
         }
     
     def validate(self, weights_path: Optional[str] = None) -> Dict[str, Any]:

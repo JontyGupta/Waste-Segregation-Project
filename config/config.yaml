@@ -131,9 +131,9 @@ yolov8: #nano variant (use yolov8s/m/1/x for better accuracy)
   iou_threshold: 0.45
   device: "auto" #"auto", "cpu", "cuda:e"
   training:
-    data_yaml: "data/yolo_dataset.yaml"
+    data_yaml: "data/YOLO_Dataset/data.yaml"
     epochs: 100
-    batch_size: 16
+    batch_size: 8
     img_size: 640
     patience: 20
     save_dir: "models/yolov8"
@@ -191,7 +191,7 @@ output:
 
 # ------------- Database -------------
 database:
-  backend: "mongodb" # "mongodb" (primary) or "sqlite" (fallback)
+  backend: "sqlite" # "mongodb" (primary) or "sqlite" (fallback)
   track_results: true #Auto-save every classification to DB
 
   mongodb:

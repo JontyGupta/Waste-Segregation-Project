@@ -273,7 +273,7 @@ def get_db_storage(config: dict, logger):
     from database.factory import get_storage_backend
 
     db_cfg = config.get("database", {})
-    backend = db_cfg.get("backend", "monogodb")
+    backend = db_cfg.get("backend", "mongodb")
 
     kwargs=  {}
     if backend == "mongodb":
@@ -284,7 +284,7 @@ def get_db_storage(config: dict, logger):
             "collection_name": mongo_cfg.get("colleciton_name", "wste_records"),
         }
     elif backend == "sqlite":
-        sqlite_chg = db_cfg.get("sqlite", {})
+        sqlite_cfg = db_cfg.get("sqlite", {})
         kwargs = {"db_path": sqlite_cfg.get("db_path", "data/waste_classifier.db")}
 
     storage = get_storage_backend(backend, **kwargs)
@@ -501,12 +501,12 @@ def main():
 
     # Initialize hardware controller (if requested)
     hw_controller = None
-    if getattr(args, "hardware", False) or getattr(args, "Simulate_hw", False):
+    if getattr(args, "hardware", False) or getattr(args, "simulate_hw", False):
         hw_controller = get_hw_controller(config, logger, simulate=getattr(args, "simulate_hw", False), port_override=getattr(args, "port", None))
 
     try:
         if args.image:
-            run_inference(args.imag, config, logger, save=args.save_output, show=args.show, db_storage=db_storage, hw_controller=hw_controller)
+            run_inference(args.image, config, logger, save=args.save_output, show=args.show, db_storage=db_storage, hw_controller=hw_controller)
 
         elif args.camera:
             run_camera_inference(config, logger, save=args.save_output, show=args.show, db_storage=db_storage, hw_controller=hw_controller)

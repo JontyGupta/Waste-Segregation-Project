@@ -50,11 +50,11 @@ def get_storage_backend(
             )
             backend = "sqlite" # Fall through to SQLite
     
-    if backend == "SQLite":
+    if backend == "sqlite":
         from database.sqlite_backend import SQLiteBackend
 
         return SQLiteBackend(
-            db_path=kwargs.get("db.path", "data/waste_classifier.db"),
+            db_path=kwargs.get("db_path", "data/waste_classifier.db"),
         )
     
     raise ValueError(

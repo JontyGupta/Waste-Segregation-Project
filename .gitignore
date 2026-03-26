@@ -11,4 +11,6 @@ scripts/mappings/
 
 runs/
 
-yolov8n.pt
+.venv/
+
+data/YOLO_Dataset/
