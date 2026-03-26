@@ -14,3 +14,9 @@ runs/
 .venv/
 
 data/YOLO_Dataset/
+
+*.pt
+models/
+runs/
+
+*.db
