@@ -15,20 +15,20 @@ logger = get_logger(__name__)
 
 # Waste categories the CNN classifies into
 WASTE_CATEGORIES = [
-    "biodegradable",
-    "non_biodegradable_recyclable",
-    "non_biodegradable_non_recyclable",
-    "medical_waste",
-    "e_waste",
-    "hazardous_waste",
-    "textile_waste",
-    "construction_waste",
-    "sanitary_waste",
-    "other",
+    "battery",
+    "biological",
+    "cardboard",
+    "clothes",
+    "glass",
+    "metal",
+    "paper",
+    "plastic",
+    "shoes",
+    "trash",
 ]
 
 
-class WasteCNN(nn.Modules):
+class WasteCNN(nn.Module):
     """
     
     
@@ -43,7 +43,7 @@ class WasteCNN(nn.Modules):
     def __init__(
         self, 
         architecture: str = "resnet50",
-        num_classes: int = 50,
+        num_classes: int = 10,
         pretrained: bool = True,
         dropout: float = 0.3,
     ) -> None:
@@ -96,17 +96,17 @@ class WasteCNN(nn.Modules):
         if architecture == "resnet18":
             base = models.resent18(weights=weights)
             in_features = base.fc.in_features
-            base.fc = nn.Identify()  # Remove original FC
+            base.fc = nn.Identity()  # Remove original FC
 
         elif architecture == "resnet50":
-            base = models.resent50(weights=weights)
+            base = models.resnet50(weights=weights)
             in_features = base.fc.in_features
-            base.fc = nn.Identify() 
+            base.fc = nn.Identity() 
 
         elif architecture == "efficientnet_b0":
             base = models.efficientnet_b0(weights=weights)
             in_features = base.classifier[1].in_features
-            base.classifier = nn.Identify() 
+            base.classifier = nn.Identity() 
 
         else:
             raise ValueError(
@@ -133,13 +133,13 @@ class WasteCNN(nn.Modules):
     def freeze_backbone(self) -> None: 
         """Freeze backbone parameters (for fine-tuning only the head)."""
         for param in self.backbone.parameters():
-            param.require_grad = False
+            param.requires_grad = False
         logger.info("Backbone frozen - only classifier head will be trained.")
     
     def unfreeze_backbone(self) -> None: 
         """Unfreezeall backbone parameters."""
         for param in self.backbone.parameters():
-            param.require_grad = True
+            param.requires_grad = True
         logger.info("Backbone unfrozen - all parameters are trainable.")
 
     def save_weights(self, path: str) -> None:

@@ -5,108 +5,25 @@
 # --------- Waste Categories ---------
 categories:
   waste_types:
-    -  "biodegradable"
-    -  "non_biodegradable_recyclable"
-    -  "non_biodegradable_non_recyclable"
-    -  "medical_waste"
-    -  "e_waste"
-    -  "hazardous_waste"
-    -  "textile_waste"
-    -  "construction_waste"
-    -  "sanitary_waste"
-    -  "other"
+    - "battery"
+    - "biological"
+    - "cardboard"
+    - "clothes"
+    - "glass"
+    - "metal"
+    - "paper"
+    - "plastic"
+    - "shoes"
+    - "trash"
 
   # Mapping: YOLO detected object -> waste category
   object_category_map:
-    # Biodegradable
-    "banana_peel": "biodegradable"
-    "orange_peel": "biodegradable"
-    "apple_core": "biodegradable"
-    "food_waste": "biodegradable"
-    "vegetable_scraps": "biodegradable"
-    "paper": "biodegradable"
-    "cardboard": "biodegradable"
-    "tea_bag": "biodegradable"
-    "egg_shell": "biodegradable"
-    "wood": "biodegradable"
-    "leaves": "biodegradable"
-
-    # Non-Biodegradable - Recyclable
-    "plastic_bottle": "non_biodegradable_recyclable"
-    "glass_bottle": "non_biodegradable_recyclable"
-    "metal_can": "non_biodegradable_recyclable"
-    "aluminium_can": "non_biodegradable_recyclable"
-    "newspaper": "non_biodegradable_recyclable"
-    "cardboard_box": "non_biodegradable_recyclable"
-    "tin_can": "non_biodegradable_recyclable"
-    "steel": "non_biodegradable_recyclable"
-
-    # Non-Biodegradable Non-Recyclable
-    "styrofoam": "non_biodegradable_non_recyclable"
-    "plastic_bag": "non_biodegradable_non_recyclable"
-    "chip_packet": "non_biodegradable_non_recyclable"
-    "ceramic": "non_biodegradable_non_recyclable"
-    "rubber": "non_biodegradable_non_recyclable"
-
-    # Medical Waste
-    "syringe": "medical_waste"
-    "bandage": "medical_waste"
-    "gloves": "medical_waste"
-    "mask": "medical_waste"
-    "medicine_bottle": "medical_waste"
-    "cotton_swab": "medical_waste"
-    "iv_bag": "medical_waste"
-    "scalpel": "medical_waste"
-
-    # E-Waste (Electronic Waste)
-    "battery": "e_waste"
-    "circuit_board": "e_waste"
-    "cable": "e_waste"
-    "charger": "e_waste"
-    "phone": "e_waste"
-    "keyboard": "e_waste"
-    "mouse": "e_waste"
-    "headphones": "e_waste"
-    "usb_drive": "e_waste"
-    "light_bulb": "e_waste"
-
-    # Hazardous Waste
-    "paint_can": "hazardous_waste"
-    "pesticide_bottle": "hazardous_waste"
-    "aerosol_can": "hazardous_waste"
-    "motor_oil": "hazardous_waste"
-    "chemical_bottle": "hazardous_waste"
-    "bleach_bottle": "hazardous_waste"
-    "solvent": "hazardous_waste"
-    "fertilizer_bag": "hazardous_waste"
-
-    # Textile Waste
-    "clothes": "textile_waste"
-    "fabric": "textile_waste"
-    "shoes": "textile_waste"
-    "leather": "textile_waste"
-    "carpet": "textile_waste"
-    "towel": "textile_waste"
-    "curtain": "textile_waste"
-    "bag_cloth": "textile_waste"
-
-    # Construction / Demolition Waste
-    "brick": "construction_waste"
-    "concrete": "construction_waste"
-    "tile": "construction_waste"
-    "plaster": "construction_waste"
-    "insulation": "construction_waste"
-    "pipe": "construction_waste"
-    "wire": "construction_waste"
-    "plywood": "construction_waste"
-
-    # Sanitary Waste
-    "diaper": "sanitary_waste"
-    "sanitary_pad": "sanitary_waste"
-    "tissue": "sanitary_waste"
-    "wet_wipe": "sanitary_waste"
-    "cotton_ball": "sanitary_waste"
-    "razor": "sanitary_waste"
+    "BIODEGRADABLE": "biological"
+    "CARDBOARD":     "cardboard"
+    "GLASS":         "glass"
+    "METAL":         "metal"
+    "PAPER":         "paper"
+    "PLASTIC":       "plastic"
 
 # ------------- Image Capture -------------
 capture:
@@ -147,18 +64,19 @@ cnn:
   weights_path: "models/cnn/best_cnn.pth"
   dropout: 0.3
   device: "auto"
+
+  image_processing:
+    cnn_input_size: [224, 224]
+    
   training:
-    epochs: 50
-    batch_size: 32
-    learning_rate: 0.001
+    epochs: 100
+    batch_size: 16
+    learning_rate: 0.0001
     weight_decay: 0.0001
-    scheduler_step: 10
+    scheduler_step: 15
     scheduler_gamma: 0.1
-    patience: 15
+    patience: 20
     save_dir: "models/cnn"
-    train_split: 0.8
-    val_split: 0.1
-    test_split: 0.1
 
 # ------------- Ensemble / Final Classifier -------------
 ensemble:

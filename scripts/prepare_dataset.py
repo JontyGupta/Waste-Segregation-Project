@@ -430,7 +430,7 @@ def prepare(
             count = len([f for f in img_dir.iterdir() if f.suffix.lower() in IMG_EXTENSIONS])
             print(f"Final data/{split}: {count} images")
     
-    print("\nDone! Ready to train with: python main.py --train-yolo")
+    print("\nDone! Ready to train with:  --train-yolo")
    
 
 def prepare_with_mapping(
@@ -499,7 +499,7 @@ def prepare_with_mapping(
     print("\nDone! Ready to train with: python main.py --train-yolo")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":python main.py
     import argparse
 
     parser = argparse.ArgumentParser(description="Prepare downloaded YOLO dataset for training") 

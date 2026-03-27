@@ -1,5 +1,8 @@
 # To enter into virtual env
-venv\Scripts\activate
+python -m venv .venv
+
+# To enter into virtual env
+.venv\Scripts\activate
 
 # Install the project with all core dependencies
 pip install -e .
@@ -18,3 +21,12 @@ python scripts/prepare_dataset.py --zip data/downloads/Yolo_Dataset1.zip --auto-
 
 # Script to split dataset
 python split_val.py
+
+# To Train Yolo Model
+python main.py --train-yolo
+
+# To Train CNN Model
+python main.py --train-cnn --dataset data/CNN_Dataset
+
+YOLO: models/yolov8/train/weights/best.pt   ✅ trained
+CNN:  models/cnn/best_cnn.pth               ✅ trained (96.31% accuracy)

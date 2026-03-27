@@ -179,12 +179,12 @@ class CNNTrainer:
                 epochs_no_improve += 1
                  
             # Early stopping
-                if epochs_no_improve >= self.patience:
-                    logger.info( 
-                        "Early stopping at epoch %d (ne improvement for %d epochs).",
-                        epoch, self.patience, 
-                    )
-                    break
+            if epochs_no_improve >= self.patience:
+                logger.info( 
+                    "Early stopping at epoch %d (ne improvement for %d epochs).",
+                    epoch, self.patience, 
+                )
+                break
 
         # Save final model
         final_path = self.save_dir / "final_cnn.pth"
@@ -203,7 +203,7 @@ class CNNTrainer:
             "history": self.history,
         }
     
-    def train_epoch(self, loader: DataLoader) -> Tuple[float, float]:
+    def _train_epoch(self, loader: DataLoader) -> Tuple[float, float]:
         """Run a single training epoch."""
         self.model.train()
         running_loss = 0.0

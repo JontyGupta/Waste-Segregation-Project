@@ -24,7 +24,7 @@ Usage:
     python main.py --train-yolo
 
     # Train CNN
-    python main.py --train-cnn --dataset path/to/cnn_dataset
+    python main.py --train-cnn --dataset data/CNN_Dataset
 
     # Export DB data for PowerBI
     python main.py --export
@@ -97,7 +97,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
     from YoloV8.model import YOLOv8Detector
     from YoloV8.model import YOLOv8Predictor
     from CNN.predict import CNNPredictor
-    from classifier.ensemble import WasteEnsembbleClassifier
+    from classifier.ensemble import WasteEnsembleClassifier
 
     logger.info("=" * 60)
     logger.info("Processing: %s", image_path)
@@ -436,18 +436,16 @@ def train_cnn(config: dict, dataset_root: str, logger):
 
     cnn_cfg = config["cnn"]
 
-    # Create data loaders
+    # CHANGE TO: use pre-split folders directly
     train_loader, val_loader, test_loader = create_dataloaders(
-        dataset_root=dataset_root,
+        train_dir=dataset_root + "/train",
+        val_dir=dataset_root + "/valid",
+        test_dir=dataset_root + "/test",
         batch_size=cnn_cfg["training"]["batch_size"],
         img_size=cnn_cfg["image_processing"]["cnn_input_size"][0],
-        train_split=cnn_cfg["training"]["train_split"],
-        val_split=cnn_cfg["training"]["val_split"],
-        test_split=cnn_cfg["training"]["test_split"],
         class_names=WASTE_CATEGORIES,
     )
 
-    # Create trainer
     trainer = CNNTrainer(
         architecture=cnn_cfg["architecture"],
         num_classes=cnn_cfg["num_classes"],

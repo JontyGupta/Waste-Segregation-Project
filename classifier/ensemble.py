@@ -109,7 +109,7 @@ class WasteEnsembleClassifier:
             return self._weighted_average(yolo_detections, cnn_predictions)
         elif self.strategy == "majority_vote":
             return self._majority_vote(yolo_detections, cnn_predictions)
-        elif self.strategy == "yolo_prioirty":
+        elif self.strategy == "yolo_priority":
             return self._yolo_prioirty(yolo_detections, cnn_predictions)
         else:
             logger.warning("Unknown strategy '%s'. Falling back to confidence_adaptive.", self.strategy)
@@ -251,7 +251,7 @@ class WasteEnsembleClassifier:
         return {
             "category": final_cat,
             "confidence": final_conf,
-            "strategy": "confidence_adaptive",
+            "strategy": "weighted_average",
             "all_probabilities": combined_probs,
             "details": {
                 "yolo_detections": len(yolo_dets),
