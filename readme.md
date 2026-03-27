@@ -6,6 +6,7 @@ python -m venv .venv
 
 # Install the project with all core dependencies
 pip install -e .
+pip install flask
 
 # Include hardware (Arduino/serial) support
 pip install -e ".[hardware]"
