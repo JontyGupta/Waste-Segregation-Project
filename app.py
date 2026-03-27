@@ -79,9 +79,16 @@ camera = None
 def get_camera():
     global camera
     if camera is None or not camera.isOpened():
-        camera = cv2.VideoCapture(0)
-        camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        # Try index 0 first, then 1
+        for idx in [0, 1, 2]:
+            camera = cv2.VideoCapture(idx, cv2.CAP_DSHOW)  # ← CAP_DSHOW for Windows
+            if camera.isOpened():
+                camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+                camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+                print(f"Camera opened at index {idx}")
+                break
+        else:
+            print("ERROR: No camera found!")
     return camera
 
 
@@ -109,6 +116,31 @@ def index():
 def video_feed():
     return Response(generate_frames(),
                     mimetype="multipart/x-mixed-replace; boundary=frame")
+
+@app.route("/frame")
+def frame():
+    """Return a single JPEG frame for JS polling."""
+    cam = get_camera()
+    if cam is None or not cam.isOpened():
+        return "", 204
+    success, f = cam.read()
+    if not success:
+        # Try reopening
+        cam.release()
+        global camera
+        camera = None
+        return "", 204
+    _, buffer = cv2.imencode(".jpg", f, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return Response(buffer.tobytes(), mimetype="image/jpeg")
+
+
+# Also confirm your `app.py` currently has these routes defined:
+
+# /              ← index page
+# /video_feed    ← old MJPEG (can keep or remove)
+# /frame         ← NEW — add this
+# /capture       ← capture + classify
+# /release_camera
 
 
 @app.route("/capture", methods=["POST"])
@@ -223,3 +255,13 @@ def release_camera():
 
 if __name__ == "__main__":
     app.run(debug=False, host="0.0.0.0", port=5000, threaded=True)
+
+@app.route("/frame")
+def frame():
+    """Return a single JPEG frame for JS polling."""
+    cam = get_camera()
+    success, f = cam.read()
+    if not success:
+        return "", 204
+    _, buffer = cv2.imencode(".jpg", f, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return Response(buffer.tobytes(), mimetype="image/jpeg")

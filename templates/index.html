@@ -431,7 +431,7 @@
 
     <div class="camera-frame" id="camera-frame">
       <!-- Live stream -->
-      <img id="live-feed" src="/video_feed" alt="Live camera feed"/>
+      <img id="live-feed" src="" alt="Live camera feed" style="width:100%;height:100%;object-fit:cover;display:block;"/>
 
       <!-- Processing overlay -->
       <div class="camera-overlay" id="processing-overlay">
@@ -495,104 +495,101 @@
 <div id="error-toast"></div>
 
 <script>
-  const CATEGORY_ICONS = {
-    battery: '🔋', biological: '🌿', cardboard: '📦',
-    clothes: '👕', glass: '🍾', metal: '🔩',
-    paper: '📄', plastic: '♻️', shoes: '👟', trash: '🗑️',
-  };
+    const CATEGORY_ICONS = {
+        battery: '🔋', biological: '🌿', cardboard: '📦',
+        clothes: '👕', glass: '🍾', metal: '🔩',
+        paper: '📄', plastic: '♻️', shoes: '👟', trash: '🗑️',
+    };
 
-  async function captureFrame() {
-    const btn = document.getElementById('capture-btn');
-    const overlay = document.getElementById('processing-overlay');
-    const resultWrap = document.getElementById('result-image-wrap');
+    async function captureFrame() {
+        liveActive = false;
+        const btn = document.getElementById('capture-btn');
+        const overlay = document.getElementById('processing-overlay');
+        const resultWrap = document.getElementById('result-image-wrap');
+        const frame = document.getElementById('camera-frame');
 
     btn.disabled = true;
     overlay.classList.add('visible');
     resultWrap.classList.remove('visible');
 
-    try {
-      const res = await fetch('/capture', { method: 'POST' });
-      const data = await res.json();
-
-      if (data.error) { showError(data.error); return; }
-
-      // Show annotated image
-      document.getElementById('result-img').src = 'data:image/jpeg;base64,' + data.image;
-      resultWrap.classList.add('visible');
-
-      // Category
-      updateCategory(data.category, data.confidence);
-
-      // Confidence bar
-      updateConfidence(data.confidence);
-
-      // Detections list
-      updateDetections(data.detections);
-
-    } catch (e) {
-      showError('Connection error: ' + e.message);
-    } finally {
-      overlay.classList.remove('visible');
-      btn.disabled = false;
-    }
-  }
-
-  function showLive() {
-    document.getElementById('result-image-wrap').classList.remove('visible');
-  }
-
-  function updateCategory(category, confidence) {
-    const el = document.getElementById('category-display');
-    const icon = CATEGORY_ICONS[category.toLowerCase()] || '🗂️';
-    const colorClass = confidence >= 80 ? 'var(--accent)' :
-                       confidence >= 50 ? 'var(--accent2)' : 'var(--warn)';
-    el.innerHTML = `
-      <span class="category-icon">${icon}</span>
-      <div class="category-name" style="color:${colorClass}">${category}</div>
-      <div class="strategy-badge">
-        <span>⚡</span> ensemble fusion
-      </div>
-    `;
-  }
-
-  function updateConfidence(pct) {
-    document.getElementById('conf-val').textContent = pct + '%';
+    // Flash effect on capture
+    frame.style.transition = 'opacity 0.08s';
+    frame.style.opacity = '0.1';
     setTimeout(() => {
-      document.getElementById('conf-fill').style.width = pct + '%';
-    }, 50);
-  }
+        frame.style.transition = 'opacity 0.3s';
+        frame.style.opacity = '1';
+    }, 100);
+}
 
-  function updateDetections(detections) {
-    const el = document.getElementById('detection-list');
-    if (!detections || detections.length === 0) {
-      el.innerHTML = '<div class="no-detections">No objects detected</div>';
-      return;
+    function showLive() {
+        document.getElementById('result-image-wrap').classList.remove('visible');
+        liveActive = true;
+        pollFrame();
     }
-    el.innerHTML = detections.map(d => `
-      <div class="detection-item">
-        <div class="det-label">
-          <div class="det-dot"></div>
-          ${d.label}
+
+    function updateCategory(category, confidence) {
+        const el = document.getElementById('category-display');
+        const icon = CATEGORY_ICONS[category.toLowerCase()] || '🗂️';
+        const colorClass = confidence >= 80 ? 'var(--accent)' :
+                        confidence >= 50 ? 'var(--accent2)' : 'var(--warn)';
+        el.innerHTML = `
+        <span class="category-icon">${icon}</span>
+        <div class="category-name" style="color:${colorClass}">${category}</div>
+        <div class="strategy-badge">
+            <span>⚡</span> ensemble fusion
         </div>
-        <div class="det-conf">${d.confidence}%</div>
-      </div>
-    `).join('');
-  }
-
-  function showError(msg) {
-    const toast = document.getElementById('error-toast');
-    toast.textContent = '⚠ ' + msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 4000);
-  }
-
-  // Keyboard shortcut: Space to capture
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Space' && !document.getElementById('capture-btn').disabled) {
-      e.preventDefault();
-      captureFrame();
+        `;
     }
-  });
+
+    function updateConfidence(pct) {
+        document.getElementById('conf-val').textContent = pct + '%';
+        setTimeout(() => {
+        document.getElementById('conf-fill').style.width = pct + '%';
+        }, 50);
+    }
+
+    function updateDetections(detections) {
+        const el = document.getElementById('detection-list');
+        if (!detections || detections.length === 0) {
+        el.innerHTML = '<div class="no-detections">No objects detected</div>';
+        return;
+        }
+        el.innerHTML = detections.map(d => `
+        <div class="detection-item">
+            <div class="det-label">
+            <div class="det-dot"></div>
+            ${d.label}
+            </div>
+            <div class="det-conf">${d.confidence}%</div>
+        </div>
+        `).join('');
+    }
+
+    function showError(msg) {
+        const toast = document.getElementById('error-toast');
+        toast.textContent = '⚠ ' + msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // Keyboard shortcut: Space to capture
+    document.addEventListener('keydown', e => {
+        if (e.code === 'Space' && !document.getElementById('capture-btn').disabled) {
+        e.preventDefault();
+        captureFrame();
+        }
+    });
+
+  // Live feed polling
+    let liveActive = true;
+    function pollFrame() {
+        if (!liveActive) return;
+        const img = document.getElementById('live-feed');
+        img.src = '/frame?' + Date.now();  // cache bust
+        img.onload = () => setTimeout(pollFrame, 50);  // ~20fps
+        img.onerror = () => setTimeout(pollFrame, 500);
+    }
+    pollFrame();  // start on page load
 </script>
 </body>
 </html>

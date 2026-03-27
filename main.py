@@ -150,7 +150,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
 
     # 4. Ensemble final classificaiton
     ens_cfg = config["ensemble"]
-    ensemble = WasteEnsembbleClassifier(
+    ensemble = WasteEnsembleClassifier(
         object_category_map=config["categories"]["object_category_map"],
         strategy=ens_cfg["strategy"],
         yolo_weight=ens_cfg["yolo_weight"],
@@ -162,7 +162,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
     result = ensemble.classify(yolo_detections, cnn_predictions)
 
     # Display result
-    print("\n" + WasteEnsembbleClassifier.format_result(result) + "\n")
+    print("\n" + WasteEnsembleClassifier.format_result(result) + "\n")
     logger.info("Final category: %s (%.1f%%)", result["category"], result["confidence"] * 100)
 
     # 5. Store result in database
@@ -220,20 +220,59 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
 
 def run_camera_inference(config: dict, logger, save: bool = False, show: bool = False, db_storage=None, hw_controller=None):
     """Capture an image from webcam and classify it."""
+    import cv2
+    import time
+
     cap_cfg = config["capture"]
-    camera = Camera(
-        camera_index=cap_cfg["camera_index"],
-        frame_width=cap_cfg["frame_width"],
-        frame_height=cap_cfg["frame_height"],
-        save_dir=cap_cfg["save_dir"],
-    )
 
-    with camera:
-        frame, saved_path = camera.capture_and_save()
-        logger.info("Captured frame saved to %s", saved_path)
+    # Open camera
+    cap = cv2.VideoCapture(cap_cfg["camera_index"])
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, cap_cfg["frame_width"])
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, cap_cfg["frame_height"])
 
-    return run_inference(saved_path, config, logger, save=save, show=show, db_storage=db_storage, source="camera", hw_controller=hw_controller)
+    if not cap.isOpened():
+        logger.error("Failed to open camera.")
+        return
 
+    logger.info("Live feed started. Press SPACE to capture, ESC to quit.")
+    saved_path = None
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            logger.error("Failed to read from camera.")
+            break
+
+        # Show live preview with instructions
+        display = frame.copy()
+        cv2.putText(display, "SPACE = Capture & Classify | ESC = Quit",
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 100), 2)
+        cv2.imshow("WasteVision - Live Feed", display)
+
+        key = cv2.waitKey(1) & 0xFF
+
+        if key == 27:  # ESC — quit
+            logger.info("Capture cancelled by user.")
+            break
+
+        elif key == 32:  # SPACE — capture
+            save_dir = Path(cap_cfg["save_dir"])
+            save_dir.mkdir(parents=True, exist_ok=True)
+            ts = time.strftime("%Y%m%d_%H%M%S")
+            saved_path = str(save_dir / f"capture_{ts}.jpg")
+            cv2.imwrite(saved_path, frame)
+            logger.info("Frame captured and saved to %s", saved_path)
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    if saved_path is None:
+        return
+
+    return run_inference(saved_path, config, logger, save=save, show=show,
+                         db_storage=db_storage, source="camera",
+                         hw_controller=hw_controller)
 
 def run_directory_inference(dir_path: str, config: dict, logger, save: bool = False, db_storage=None, hw_controller=None):
     """Run inference on all images in a directory"""
