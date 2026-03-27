@@ -95,7 +95,7 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
     Steps: Load image -> YOLOv8 detect -> CNN classify crops -> Ensemble -> DB -> Hardware.
     """
     from YoloV8.model import YOLOv8Detector
-    from YoloV8.model import YOLOv8Predictor
+    from YoloV8.predict import YOLOv8Predictor
     from CNN.predict import CNNPredictor
     from classifier.ensemble import WasteEnsembleClassifier
 
@@ -220,9 +220,9 @@ def run_inference(image_path: str, config: dict, logger, save: bool = False, sho
 
 def run_camera_inference(config: dict, logger, save: bool = False, show: bool = False, db_storage=None, hw_controller=None):
     """Capture an image from webcam and classify it."""
-    cap_cfg = config["camera_index"],
+    cap_cfg = config["capture"]
     camera = Camera(
-        camera_index=cap_cfg[""],
+        camera_index=cap_cfg["camera_index"],
         frame_width=cap_cfg["frame_width"],
         frame_height=cap_cfg["frame_height"],
         save_dir=cap_cfg["save_dir"],

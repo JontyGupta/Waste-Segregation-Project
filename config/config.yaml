@@ -43,7 +43,7 @@ image_processing:
 # ------------- YOLOV8 Model -------------
 yolov8: #nano variant (use yolov8s/m/1/x for better accuracy)
   model_variant: "yolov8n.pt"
-  pretrained_weights: "models/yolov8/train/weights/best.pt"
+  pretrained_weights: "runs/detect/models/yolov8/train/weights/best.pt"
   confidence_threshold: 0.5
   iou_threshold: 0.45
   device: "auto" #"auto", "cpu", "cuda:e"

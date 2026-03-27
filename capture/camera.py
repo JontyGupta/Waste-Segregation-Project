@@ -117,7 +117,7 @@ class Camera:
         frame = self.capture_frame()
         if filename is None:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-            filename - f"capture_{timestamp}.jpg"
+            filename = f"capture_{timestamp}.jpg"
 
         save_path = self.save_dir / filename
         cv2.imwrite(str(save_path), frame)
