@@ -508,18 +508,42 @@
         const resultWrap = document.getElementById('result-image-wrap');
         const frame = document.getElementById('camera-frame');
 
-    btn.disabled = true;
-    overlay.classList.add('visible');
-    resultWrap.classList.remove('visible');
+        btn.disabled = true;
+        overlay.classList.add('visible');
+        resultWrap.classList.remove('visible');
 
-    // Flash effect on capture
-    frame.style.transition = 'opacity 0.08s';
-    frame.style.opacity = '0.1';
-    setTimeout(() => {
-        frame.style.transition = 'opacity 0.3s';
-        frame.style.opacity = '1';
-    }, 100);
-}
+        // Flash effect
+        frame.style.transition = 'opacity 0.08s';
+        frame.style.opacity = '0.1';
+        setTimeout(() => {
+            frame.style.transition = 'opacity 0.3s';
+            frame.style.opacity = '1';
+        }, 100);
+
+        try {
+            const res = await fetch('/capture', { method: 'POST' });
+            const data = await res.json();
+
+            if (data.error) { showError(data.error); return; }
+
+            // Show annotated image
+            document.getElementById('result-img').src = 'data:image/jpeg;base64,' + data.image;
+            resultWrap.classList.add('visible');
+
+            // Update UI
+            updateCategory(data.category, data.confidence);
+            updateConfidence(data.confidence);
+            updateDetections(data.detections);
+
+        } catch (e) {
+            showError('Connection error: ' + e.message);
+        } finally {
+            overlay.classList.remove('visible');
+            btn.disabled = false;
+            liveActive = true;
+            pollFrame();
+        }
+    }
 
     function showLive() {
         document.getElementById('result-image-wrap').classList.remove('visible');

@@ -33,22 +33,22 @@ def preprocess_image(
         raise ValueError("Input image is None.")
     
     # Convert BGR -> RGB
-    rgb_image = cv2.cvtcolor(image, cv2.COLOR_BGR2RGB)
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     # Resize
     resized = cv2.resize(rgb_image, target_size, interpolation=cv2.INTER_LINEAR)
 
     # Convert to float32
-    procedded = resized.astype(np.float32)
+    processed = resized.astype(np.float32)
 
     # Normalize to [0, 1]
     if normalize:
-        processed = 255.0
+        processed = processed / 255.0
 
     # Apply meanstd normalization (ImageNet defaults)
     if mean and std:
         mean_arr = np.array(mean, dtype=np.float32).reshape(1, 1, 3)
-        std_arr = np.array(std, stype=np.float32).reshape(1, 1, 3)
+        std_arr = np.array(std, dtype=np.float32).reshape(1, 1, 3)
         processed = (processed - mean_arr) / std_arr
 
     return processed
@@ -144,7 +144,7 @@ def draw_predictions(
     # Draw fianl category banner
     banner_text = f"CATEGORY: {category.upper()} ({confidence:.1%})"
     (btw, bth), _  = cv2.getTextSize(banner_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
-    cv2.rectanlge(annotated, (0, 0), (btw + 16, bth + 20), box_color, -1)
+    cv2.rectangle(annotated, (0, 0), (btw + 16, bth + 20), box_color, -1)
     cv2.putText(
         annotated, banner_text, (8, bth + 10),
         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2,
