@@ -8,6 +8,15 @@ python -m venv .venv
 pip install -e .
 pip install flask
 
+# To include GPU for training
+pip uninstall torch torchvision torchaudio -y
+
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+import torch
+print(torch.cuda.is_available())
+print(torch.cuda.get_device_name(0))
+
 # Include hardware (Arduino/serial) support
 pip install -e ".[hardware]"
 
@@ -28,6 +37,9 @@ python main.py --train-yolo
 
 # To Train CNN Model
 python main.py --train-cnn --dataset data/CNN_Dataset
+
+# To start the Application
+python app.py
 
 YOLO: models/yolov8/train/weights/best.pt   ✅ trained
 CNN:  models/cnn/best_cnn.pth               ✅ trained (96.31% accuracy)
