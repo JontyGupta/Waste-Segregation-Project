@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 import torch
+import shutil
 import torch.nn as nn 
 from torch.optim import Adam 
 from torch.optim.lr_scheduler import StepLR 
@@ -181,14 +182,20 @@ class CNNTrainer:
             # Early stopping
             if epochs_no_improve >= self.patience:
                 logger.info( 
-                    "Early stopping at epoch %d (ne improvement for %d epochs).",
+                    "Early stopping at epoch %d (no improvement for %d epochs).",
                     epoch, self.patience, 
                 )
+    
                 break
 
         # Save final model
+        best_path = self.save_dir / "best_cnn.pth"
         final_path = self.save_dir / "final_cnn.pth"
-        self.model.save_weights(str(final_path))
+        if best_path.exists():
+            shutil.copy(best_path, final_path)
+            logger.info("Final model saved (copy of best epoch %d)", best_epoch)
+        else:
+            self.model.save_weights(str(final_path))
 
         logger.info("=" * 60)
         logger.info("Training Complete")

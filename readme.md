@@ -17,6 +17,8 @@ import torch
 print(torch.cuda.is_available())
 print(torch.cuda.get_device_name(0))
 
+python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
+
 # Include hardware (Arduino/serial) support
 pip install -e ".[hardware]"
 

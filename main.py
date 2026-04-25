@@ -468,26 +468,35 @@ def train_yolo(config: dict, logger):
 
 
 def train_cnn(config: dict, dataset_root: str, logger):
-    """Train the cnn model."""
+    """Train the CNN model."""
     from CNN.train import CNNTrainer
     from CNN.dataset import create_dataloaders
-    from CNN.model import WASTE_CATEGORIES
+    import os
 
     cnn_cfg = config["cnn"]
 
-    # CHANGE TO: use pre-split folders directly
+    # ✅ Auto-detect classes from the actual dataset being used
+    train_dir = dataset_root + "/train"
+    class_names = sorted([
+        d for d in os.listdir(train_dir)
+        if os.path.isdir(os.path.join(train_dir, d))
+    ])
+    num_classes = len(class_names)
+    logger.info("Auto-detected %d classes: %s", num_classes, class_names)
+
+    # ✅ Pass class_names=None so dataset also auto-detects
     train_loader, val_loader, test_loader = create_dataloaders(
-        train_dir=dataset_root + "/train",
+        train_dir=train_dir,
         val_dir=dataset_root + "/valid",
         test_dir=dataset_root + "/test",
         batch_size=cnn_cfg["training"]["batch_size"],
         img_size=cnn_cfg["image_processing"]["cnn_input_size"][0],
-        class_names=WASTE_CATEGORIES,
+        class_names=None,  # ✅ Auto-detect, don't hardcode
     )
 
     trainer = CNNTrainer(
         architecture=cnn_cfg["architecture"],
-        num_classes=cnn_cfg["num_classes"],
+        num_classes=num_classes,  # ✅ Dynamic from actual dataset
         pretrained=cnn_cfg["pretrained"],
         dropout=cnn_cfg["dropout"],
         learning_rate=cnn_cfg["training"]["learning_rate"],
@@ -501,7 +510,7 @@ def train_cnn(config: dict, dataset_root: str, logger):
     )
 
     results = trainer.train(train_loader, val_loader)
-    logger.info("CNN training complete. Best weights: %.2f%%", results["best_val_acc"] * 100)
+    logger.info("CNN training complete. Best val acc: %.2f%%", results["best_val_acc"] * 100)
     return results
 
 

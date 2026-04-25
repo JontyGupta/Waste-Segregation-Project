@@ -14,7 +14,9 @@ runs/
 .venv/
 
 data/YOLO_Dataset/
+data/YOLO_Dataset_V2/
 data/CNN_Dataset/
+data/CNN_Dataset_V2/
 
 *.pt
 models/

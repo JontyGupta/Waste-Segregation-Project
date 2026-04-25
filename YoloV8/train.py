@@ -30,7 +30,7 @@ class YOLOv8Trainer:
     def __init__(
         self,
         model_variant: str = "yolov8n.pt",
-        data_yaml: str = "data/YOLO_Dataset/data.yaml",
+        data_yaml: str = "data/YOLO_Dataset_V2/data.yaml",
         epochs: int = 50,
         batch_size: int = 16,
         img_size: int = 640,
@@ -96,7 +96,12 @@ class YOLOv8Trainer:
         logger.info("Image size         : %s", self.img_size)
         logger.info("Save directory     : %s", self.save_dir)
 
-        model = YOLO(self.model_variant)
+        model = YOLO(self.model_variant)  # Load base model first
+        # Then load your best previous weights if they exist
+        best_weights_path = Path("runs/detect") / str(self.save_dir) / "train/weights/best.pt"
+        if Path(best_weights_path).exists():
+            model = YOLO(best_weights_path)  # ← Load previous trained model
+            print(f"[INFO] Loaded previous YOLO weights from {best_weights_path}")
 
         results = model.train(
             data=self.data_yaml,
@@ -113,7 +118,7 @@ class YOLOv8Trainer:
         )
 
         # Locate best weights
-        best_weights = self.save_dir / "train" / "weights" / "best.pt"
+        best_weights = Path(results.save_dir) / "weights" / "best.pt"
         if not best_weights.exists():
             logger.warning("best.pt not found as expected location: %s", best_weights)
             best_weights = None
