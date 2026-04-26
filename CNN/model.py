@@ -42,8 +42,8 @@ class WasteCNN(nn.Module):
 
     def __init__(
         self, 
-        architecture: str = "resnet50",
-        num_classes: int = 10,
+        architecture: str = "mobilenet_v2",
+        num_classes: int = 6,
         pretrained: bool = True,
         dropout: float = 0.3,
     ) -> None:
@@ -107,6 +107,11 @@ class WasteCNN(nn.Module):
             base = models.efficientnet_b0(weights=weights)
             in_features = base.classifier[1].in_features
             base.classifier = nn.Identity() 
+
+        elif architecture == "mobilenet_v2":
+            base = models.mobilenet_v2(weights=weights)
+            in_features = base.classifier[1].in_features
+            base.classifier = nn.Identity()
 
         else:
             raise ValueError(

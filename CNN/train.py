@@ -34,8 +34,8 @@ class CNNTrainer:
 
     def __init__(
         self,
-        architecture: str = "resnet50",
-        num_classes: int = 10,
+        architecture: str = "mobilenet_v2",
+        num_classes: int = 6,
         pretrained: bool = True,
         dropout: float = 0.3,
         learning_rate: float = 0.001,

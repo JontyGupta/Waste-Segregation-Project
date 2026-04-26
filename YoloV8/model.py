@@ -25,7 +25,7 @@ class YOLOv8Detector:
 
     def __init__(
         self, 
-        model_path: str = "yolov8n.pt",
+        model_path: str = "yolov8s-oiv7.pt",
         confidence_threshold: float = 0.5,
         iou_threshold: float = 0.45,
         device: str = "auto",

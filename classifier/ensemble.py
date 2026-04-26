@@ -110,7 +110,7 @@ class WasteEnsembleClassifier:
         elif self.strategy == "majority_vote":
             return self._majority_vote(yolo_detections, cnn_predictions)
         elif self.strategy == "yolo_priority":
-            return self._yolo_prioirty(yolo_detections, cnn_predictions)
+            return self._yolo_priority(yolo_detections, cnn_predictions)
         else:
             logger.warning("Unknown strategy '%s'. Falling back to confidence_adaptive.", self.strategy)
             return self._confidence_adaptive(yolo_detections, cnn_predictions)

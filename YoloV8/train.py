@@ -29,7 +29,7 @@ class YOLOv8Trainer:
 
     def __init__(
         self,
-        model_variant: str = "yolov8n.pt",
+        model_variant: str = "yolov8s-oiv7.pt",
         data_yaml: str = "data/YOLO_Dataset_V2/data.yaml",
         epochs: int = 50,
         batch_size: int = 16,

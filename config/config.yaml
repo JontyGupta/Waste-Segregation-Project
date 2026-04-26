@@ -42,7 +42,7 @@ image_processing:
 
 # ------------- YOLOV8 Model -------------
 yolov8: #nano variant (use yolov8s/m/1/x for better accuracy)
-  model_variant: "yolov8n.pt"
+  model_variant: "yolov8s-oiv7.pt"
   pretrained_weights: "runs/detect/models/yolov8/train/weights/best.pt"
   confidence_threshold: 0.5
   iou_threshold: 0.45
@@ -58,7 +58,7 @@ yolov8: #nano variant (use yolov8s/m/1/x for better accuracy)
 
 # ------------- CNN Model -------------
 cnn:
-  architecture: "resnet50" #resnet50, resnet18, efficientnet_bo
+  architecture: "mobilenet_v2" #resnet50, resnet18, efficientnet_bo
   num_classes: 6
   pretrained: true
   weights_path: "models/cnn/best_cnn.pth"
@@ -80,7 +80,7 @@ cnn:
 
 # ------------- Ensemble / Final Classifier -------------
 ensemble:
-  strategy: "confidence_adaptive" # "confidence_adaptive", "weighted_average", "majority_vote", "yolo_priority"
+  strategy: "yolo_priority" # "confidence_adaptive", "weighted_average", "majority_vote", "yolo_priority"
   yolo_weight: 0.55
   cnn_weight: 0.45
   min_confidence: 0.3 #Minimum confidence to accept a prediction
